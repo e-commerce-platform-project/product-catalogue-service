@@ -14,7 +14,7 @@ import java.net.URI;
 @Configuration
 public class S3Config {
     @Value("${yandex.cloud.access-key}")
-    private String accessKeyId;
+    private String accessKey;
 
     @Value("${yandex.cloud.secret-key}")
     private String secretKey;
@@ -28,15 +28,15 @@ public class S3Config {
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
-                .endpointOverride(URI.create(s3Endpoint))
                 .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKeyId, secretKey))
+                        AwsBasicCredentials.create(accessKey, secretKey))
                 )
+                .endpointOverride(URI.create(s3Endpoint))
                 .region(Region.of(s3Region))
-                .serviceConfiguration(S3Configuration.builder()
-                        .pathStyleAccessEnabled(true)
-                        .build()
-                )
+//                .serviceConfiguration(S3Configuration.builder()
+//                        .pathStyleAccessEnabled(true)
+//                        .build()
+//                ) //todo
                 .build();
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.ivanov.ecommerceplatformproject.common.dto.CartProductDto;
 import ru.ivanov.ecommerceplatformproject.common.dto.SellerProductDto;
+import ru.ivanov.ecommerceplatformproject.productservice.command.service.S3Service;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.FrontendProductDto;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.ProductDto;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.request.CreateProductRequest;
@@ -23,8 +24,9 @@ import ru.ivanov.ecommerceplatformproject.productservice.model.Product;
 import ru.ivanov.ecommerceplatformproject.productservice.model.enums.ProductCategory;
 import ru.ivanov.ecommerceplatformproject.productservice.repository.ProductRepository;
 import ru.ivanov.ecommerceplatformproject.productservice.repository.specification.ProductSpecification;
-import ru.ivanov.ecommerceplatformproject.productservice.service.ImageService;
+import ru.ivanov.ecommerceplatformproject.productservice.service.S3Service;
 import ru.ivanov.ecommerceplatformproject.productservice.service.ProductService;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.event.ProductApprovedEvent;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -40,33 +42,13 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final CacheManager cacheManager;
-    private final ImageService imageService;
+    private final S3Service s3Service;
 
     @Override
     @Transactional
-    public SellerProductDto createProduct(
-            UUID sellerId, CreateProductRequest request, MultipartFile mainImage, List<MultipartFile> additionalImages) {
-
-        String mainImageUrl = imageService.uploadImage(mainImage);
-
-        Product product = new Product(
-                sellerId,
-                request.name(),
-                request.description(),
-                ProductCategory.valueOf(request.category()),
-                request.price(),
-                request.stockQuantity(),
-                mainImageUrl
-        );
-
-        for (MultipartFile image : additionalImages) {
-            String imageUrl = imageService.uploadImage(image);
-            product.addAdditionalImageUrl(imageUrl);
-        }
-
-        Product savedProduct = productRepository.save(product);
-//        cacheManager.getCache("products").put(savedProduct.getId(), productMapper.toDto(savedProduct));
-        return productMapper.toSellerDto(savedProduct);
+    public void createProduct(ProductApprovedEvent event) {
+        Product product = productMapper.toEntity(event);
+        productRepository.save(product);
     }
 
     @Override
@@ -177,19 +159,19 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (newMainImage != null) {
-            String newMainImageUrl = imageService.uploadImage(newMainImage);
+            String newMainImageUrl = s3Service.uploadImage(newMainImage);
             product.setMainImageUrl(newMainImageUrl);
         }
 
         if (newAdditionalImages != null && !newAdditionalImages.isEmpty()) {
             newAdditionalImages.forEach(image -> {
-                String imageUrl = imageService.uploadImage(image);
+                String imageUrl = s3Service.uploadImage(image);
                 product.addAdditionalImageUrl(imageUrl);
             });
         }
 
         if (imageURLsToDelete != null) {
-            imageURLsToDelete.forEach(imageService::deleteImage);
+            imageURLsToDelete.forEach(s3Service::deleteImage);
         }
 
         Product savedProduct = productRepository.save(product);

@@ -18,6 +18,7 @@ spring:
     username: username
     password: password
 
+
   jpa:
     open-in-view: false
     show-sql: true
@@ -30,22 +31,18 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6380
+      cluster:
+        nodes:
+          - redis-cluster.ecommerce-platform-project:6379
+          - redis-cluster.ecommerce-platform-project:6380
+          - redis-cluster.ecommerce-platform-project:6381
+      timeout: 5s
+  cache:
+    redis:
+      time-to-live: 60000
+      use-key-prefix: true
+      key-prefix: "product:"
 
   liquibase:
-    enabled: true
+    enabled: false
     change-log: classpath:/db/changelog/db.changelog-master.xml
-
-jwt:
-  access:
-    secret: 5ba1791dedb87fec844cd4c57bcf5c3afeb0379f4b67347a438bc559b429a52c
-
-yandex:
-  cloud:
-    access-key:
-    secret-key:
-    s3:
-      endpoint: https://storage.yandexcloud.net
-      region: ru-central1
-      bucket: online-shop-project-images

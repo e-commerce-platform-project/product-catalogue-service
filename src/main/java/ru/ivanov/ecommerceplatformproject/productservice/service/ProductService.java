@@ -5,10 +5,10 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.ivanov.ecommerceplatformproject.common.dto.CartProductDto;
 import ru.ivanov.ecommerceplatformproject.common.dto.SellerProductDto;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.FrontendProductDto;
-import ru.ivanov.ecommerceplatformproject.productservice.dto.request.CreateProductRequest;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.request.UpdateProductRequest;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.response.PagedResponse;
 import ru.ivanov.ecommerceplatformproject.productservice.model.enums.ProductCategory;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.event.ProductApprovedEvent;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public interface ProductService {
 
-    SellerProductDto createProduct(UUID sellerId, CreateProductRequest request, MultipartFile mainImage, List<MultipartFile> additionalImages);
+    void createProduct(ProductApprovedEvent event);
 
     PagedResponse<FrontendProductDto> getAllProductsForFrontend(Pageable pageable, ProductCategory category, BigDecimal minPrice, BigDecimal maxPrice);
 
