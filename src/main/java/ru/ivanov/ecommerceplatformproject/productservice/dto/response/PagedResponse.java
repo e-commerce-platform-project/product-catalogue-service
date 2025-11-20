@@ -1,6 +1,7 @@
 package ru.ivanov.ecommerceplatformproject.productservice.dto.response;
 
 import org.springframework.data.domain.Page;
+import ru.ivanov.ecommerceplatformproject.productservice.query.Query;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,7 +14,7 @@ public record PagedResponse<T>(
         boolean first,
         boolean last,
         List<T> content
-) implements Serializable {
+) implements Serializable, Query.Result {
     public static <T> PagedResponse<T> fromPage(Page<T> page) {
         return new PagedResponse<>(
                 page.getNumber(),

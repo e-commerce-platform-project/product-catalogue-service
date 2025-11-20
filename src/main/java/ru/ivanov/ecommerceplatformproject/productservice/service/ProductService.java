@@ -2,12 +2,12 @@ package ru.ivanov.ecommerceplatformproject.productservice.service;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
-import ru.ivanov.ecommerceplatformproject.common.dto.CartProductDto;
-import ru.ivanov.ecommerceplatformproject.common.dto.SellerProductDto;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.FrontendProductDto;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.request.UpdateProductRequest;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.response.PagedResponse;
-import ru.ivanov.ecommerceplatformproject.productservice.model.enums.ProductCategory;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.dto.CartProductDto;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.dto.SellerProductDto;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.enums.ProductCategory;
 import ru.ivanov.ecommerceplatformproject.sharedlibs.event.ProductApprovedEvent;
 
 import java.math.BigDecimal;
@@ -33,7 +33,7 @@ public interface ProductService {
 
     void deleteProduct(UUID productId);
 
-//    boolean productExists(UUID productId);
+//    boolean productExists(UUID id);
 
     Map<String, String> getProductsCategories();
 }

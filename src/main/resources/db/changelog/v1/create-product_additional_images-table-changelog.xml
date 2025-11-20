@@ -4,23 +4,23 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="create-product_images-table" author="Anton Ivanov">
-        <preConditions onFail="CONTINUE" onFailMessage="Table product_images already exists">
+    <changeSet id="create-product_additional_images-table" author="Anton Ivanov">
+        <preConditions onFail="CONTINUE" onFailMessage="Table product_additional_images already exists">
             <not>
-                <tableExists tableName="product_images"/>
+                <tableExists tableName="product_additional_images"/>
             </not>
         </preConditions>
 
-        <createTable tableName="product_images">
+        <createTable tableName="product_additional_images">
             <column name="product_id" type="uuid">
                 <constraints nullable="false"/>
             </column>
-            <column name="url" type="varchar">
+            <column name="image_url" type="varchar">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="product_images"
+        <addForeignKeyConstraint baseTableName="product_additional_images"
                                  baseColumnNames="product_id"
                                  constraintName="product_id_fk"
                                  referencedTableName="products"
@@ -28,7 +28,7 @@
         />
 
         <rollback>
-            <dropTable tableName="product_images"/>
+            <dropTable tableName="product_additional_images"/>
         </rollback>
     </changeSet>
 

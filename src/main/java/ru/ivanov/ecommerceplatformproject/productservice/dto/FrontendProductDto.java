@@ -11,7 +11,6 @@ public record FrontendProductDto(
         String description,
         String category,
         BigDecimal price,
-        int availableQuantity,
         String mainImageUrl,
         List<String> additionalImageUrls
 

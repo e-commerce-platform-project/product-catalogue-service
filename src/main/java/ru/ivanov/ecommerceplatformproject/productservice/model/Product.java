@@ -1,102 +1,86 @@
 package ru.ivanov.ecommerceplatformproject.productservice.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-import ru.ivanov.ecommerceplatformproject.productservice.model.enums.ProductCategory;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.axonframework.commandhandling.CommandHandler;
+import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.modelling.command.AggregateIdentifier;
+import org.axonframework.modelling.command.AggregateLifecycle;
+import org.axonframework.modelling.command.AggregateMember;
+import org.axonframework.spring.stereotype.Aggregate;
+import ru.ivanov.ecommerceplatformproject.productservice.command.CreateProductCommand;
 import ru.ivanov.ecommerceplatformproject.productservice.model.enums.ProductStatus;
+import ru.ivanov.ecommerceplatformproject.productservice.valueObject.*;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.enums.ProductCategory;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.event.ProductCreatedEvent;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
+import java.util.Set;
 
-@Entity
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode
-@Table(name = "products")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Aggregate
 public class Product {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, unique = true, updatable = false)
-    private UUID id;
+    @AggregateIdentifier
+    private ProductId id;
 
-    @Column(name = "seller_id", nullable = false)
-    private UUID sellerId;
+    private SellerId sellerId;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    private ProductName name;
 
-    @Column(name = "brand", nullable = false, length = 100)
-    private String brand;
+    private Brand brand;
 
-    @Column(name = "description", nullable = false, length = 1024)
-    private String description;
+    private ProductDescription description;
 
-    @Column(name = "category", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ProductCategory category;
+    private ProductCategory primaryCategory;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    private Set<ProductCategory> additionalCategories = new HashSet<>();
 
-    @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
+    private Money price;
+
     private ProductStatus status;
 
-    @Column(name = "available_quantity", nullable = false)
-    private int availableQuantity = 0;
+    private ImageUrl mainImageUrl;
 
-    @Column(name = "reserved_quantity", nullable = false)
-    private int reservedQuantity;
+    @AggregateMember
+    private List<ImageUrl> additionalImageUrls = new ArrayList<>();
 
-    @Column(name = "main_image_url", nullable = false)
-    private String mainImageUrl;
-
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "product_additional_images", joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "image_url")
-    private List<String> additionalImageUrls = new ArrayList<>();
-
-    public void addAdditionalImageUrl(String additionalImageUrl) {
-        this.additionalImageUrls.add(additionalImageUrl);
+    @CommandHandler
+    public void handle(CreateProductCommand command) {
+        AggregateLifecycle.apply(new ProductCreatedEvent(
+                command.id(),
+                command.sellerId(),
+                command.name(),
+                command.description(),
+                command.category(),
+                command.brand(),
+                command.price(),
+                command.mainImageUrl(),
+                command.additionalImageUrls()
+        ));
     }
 
-    public void updatePrice(BigDecimal newPrice) {
-        if (newPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Цена не может быть отрицательной");
-        }
-        this.price = newPrice;
+    @EventSourcingHandler
+    public void on(ProductCreatedEvent event) {
+        this.id = new ProductId(event.id());
+        this.sellerId = new SellerId(event.sellerId());
+        this.name = new ProductName(event.name());
+        this.brand = new Brand(event.brand());
+        this.description = new ProductDescription(event.description());
+        this.primaryCategory = event.category();
+        this.price = new Money(event.price());
+        this.status = ProductStatus.NEW;
+        this.mainImageUrl = new ImageUrl(event.mainImageUrl());
+        this.additionalImageUrls = event.additionalImageUrls().stream()
+                .map(ImageUrl::new)
+                .toList();
     }
 
-    public void updateStock(int newStockQuantity) {
-        if (newStockQuantity < 0) {
-            throw new IllegalArgumentException("Количество на складе не может быть отрицательным");
-        }
-        this.stockQuantity = newStockQuantity;
-    }
+    @CommandHandler
+    public void handle()
 
-    public void reserveStock(int quantity) {
-        if (quantity < 0) throw new IllegalArgumentException("Количество для резервирования не может быть отрицательным");
-        if (quantity > this.stockQuantity - this.reservedQuantity) {
-            throw new IllegalArgumentException("Недостаточно товара для резервирования");
-        }
-        this.reservedQuantity += quantity;
-    }
-
-    public void unreserveStock(int quantity) {
-        if (quantity < 0) throw new IllegalArgumentException("Количество для разрезервирования не может быть отрицательным");
-        if (quantity > this.reservedQuantity) {
-            throw new IllegalArgumentException("Нельзя разрезервировать больше, чем зарезервировано");
-        }
-        this.reservedQuantity -= quantity;
-    }
-
-    public void confirmReservation(int quantity) {
-        this.stockQuantity -= quantity;
-        this.reservedQuantity -= quantity;
-    }
 }

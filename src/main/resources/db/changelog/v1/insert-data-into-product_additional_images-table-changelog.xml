@@ -5,25 +5,25 @@
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="insert-data-into-product_images-table" author="Anton Ivanov">
-        <preConditions onFail="CONTINUE" onFailMessage="Table product_images already exists or table is not empty">
-            <tableExists tableName="product_images"/>
-            <tableIsEmpty tableName="product_images"/>
+        <preConditions onFail="CONTINUE" onFailMessage="Table product_additional_images already exists or table is not empty">
+            <tableExists tableName="product_additional_images"/>
+            <tableIsEmpty tableName="product_additional_images"/>
         </preConditions>
 
         <loadData
-                tableName="product_images"
+                tableName="product_additional_images"
                 file="data/product_images-table-data.csv"
                 relativeToChangelogFile="true"
                 separator=","
                 encoding="UTF-8">
 
             <column name="product_id" type="uuid"/>
-            <column name="url" type="varchar"/>
+            <column name="image_url" type="varchar"/>
         </loadData>
 
         <rollback>
             <sql>
-                truncate table product_images
+                truncate table product_additional_images
             </sql>
         </rollback>
     </changeSet>

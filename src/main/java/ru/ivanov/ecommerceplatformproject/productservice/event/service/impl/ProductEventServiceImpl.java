@@ -47,12 +47,12 @@ public class ProductEventServiceImpl implements ProductEventService {
         }
 
         if (event.category() != null && !event.category().isBlank()) {
-            // login
+            // logic
         }
 
-        if (event.brand() != null && !event.brand().isBlank()) {
-            product.setBrand(event.brand());
-        }
+//        if (event.brand() != null && !event.brand().isBlank()) {
+//            product.setBrand(event.brand());
+//        }
 
         if (event.price() != null) {
             product.setPrice(event.price());

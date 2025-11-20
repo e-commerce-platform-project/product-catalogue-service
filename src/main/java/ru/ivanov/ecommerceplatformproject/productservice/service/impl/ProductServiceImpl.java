@@ -10,22 +10,19 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.ivanov.ecommerceplatformproject.common.dto.CartProductDto;
-import ru.ivanov.ecommerceplatformproject.common.dto.SellerProductDto;
-import ru.ivanov.ecommerceplatformproject.productservice.command.service.S3Service;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.FrontendProductDto;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.ProductDto;
-import ru.ivanov.ecommerceplatformproject.productservice.dto.request.CreateProductRequest;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.request.UpdateProductRequest;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.response.PagedResponse;
 import ru.ivanov.ecommerceplatformproject.productservice.exception.ProductNotFoundException;
 import ru.ivanov.ecommerceplatformproject.productservice.mapper.ProductMapper;
 import ru.ivanov.ecommerceplatformproject.productservice.model.Product;
-import ru.ivanov.ecommerceplatformproject.productservice.model.enums.ProductCategory;
 import ru.ivanov.ecommerceplatformproject.productservice.repository.ProductRepository;
 import ru.ivanov.ecommerceplatformproject.productservice.repository.specification.ProductSpecification;
-import ru.ivanov.ecommerceplatformproject.productservice.service.S3Service;
 import ru.ivanov.ecommerceplatformproject.productservice.service.ProductService;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.dto.CartProductDto;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.dto.SellerProductDto;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.enums.ProductCategory;
 import ru.ivanov.ecommerceplatformproject.sharedlibs.event.ProductApprovedEvent;
 
 import java.math.BigDecimal;
@@ -41,8 +38,8 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    private final CacheManager cacheManager;
-    private final S3Service s3Service;
+//    private final CacheManager cacheManager;
+//    private final S3Service s3Service;
 
     @Override
     @Transactional
@@ -54,62 +51,65 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<CartProductDto> getProductsForCartService(List<UUID> productsIds) {
-        if (productsIds == null || productsIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Cache cache = cacheManager.getCache("products");
-
-        if (cache == null) {
-            return findProductsBatch(productsIds).stream()
-                    .map(productMapper::toCartDto)
-                    .toList();
-        }
-
-        List<CartProductDto> products = new ArrayList<>();
-        List<UUID> missingIDs = new ArrayList<>();
-
-        for (UUID id : productsIds) {
-            ProductDto cachedProduct = cache.get(id, ProductDto.class);
-            if (cachedProduct != null) {
-                products.add(productMapper.toCartDto(cachedProduct));
-            } else {
-                missingIDs.add(id);
-            }
-        }
-
-        if (!missingIDs.isEmpty()) {
-            List<ProductDto> missingProducts = findProductsBatch(missingIDs);
-
-            missingProducts.forEach(product -> {
-                cache.put(product.id(), product);
-                products.add(productMapper.toCartDto(product));
-            });
-        }
-
-        return products;
+//        if (productsIds == null || productsIds.isEmpty()) {
+//            return Collections.emptyList();
+//        }
+//
+//        Cache cache = cacheManager.getCache("products");
+//
+//        if (cache == null) {
+//            return findProductsBatch(productsIds).stream()
+//                    .map(productMapper::toCartDto)
+//                    .toList();
+//        }
+//
+//        List<CartProductDto> products = new ArrayList<>();
+//        List<UUID> missingIDs = new ArrayList<>();
+//
+//        for (UUID id : productsIds) {
+//            ProductDto cachedProduct = cache.get(id, ProductDto.class);
+//            if (cachedProduct != null) {
+//                products.add(productMapper.toCartDto(cachedProduct));
+//            } else {
+//                missingIDs.add(id);
+//            }
+//        }
+//
+//        if (!missingIDs.isEmpty()) {
+//            List<ProductDto> missingProducts = findProductsBatch(missingIDs);
+//
+//            missingProducts.forEach(product -> {
+//                cache.put(product.id(), product);
+//                products.add(productMapper.toCartDto(product));
+//            });
+//        }
+//
+//        return products;
+        return null;
     }
 
     @Override
     @Transactional(readOnly = true)
     public CartProductDto getProductForCartService(UUID productId) {
-        Cache cache = cacheManager.getCache("product");
-
-        if (cache == null) {
-            Product product = findById(productId);
-            return productMapper.toCartDto(product);
-        }
-
-        Product product = findById(productId);
-        ProductDto productDto = productMapper.toDto(product);
-        cache.put(productDto.id(), productDto);
-        return new CartProductDto(
-                product.getId(),
-                product.getName(),
-                product.getPrice(),
-                product.getStockQuantity() - product.getReservedQuantity(),
-                product.getMainImageUrl()
-        );
+//        Cache cache = cacheManager.getCache("product");
+//
+//        if (cache == null) {
+//            Product product = findById(id);
+//            return productMapper.toCartDto(product);
+//        }
+//
+//        Product product = findById(id);
+//        ProductDto productDto = productMapper.toDto(product);
+//        cache.put(productDto.id(), productDto);
+//        return new CartProductDto(
+//                product.getId(),
+//                product.getName(),
+//                product.getPrice(),
+//                product.getMainImageUrl()
+//        );
+        return productRepository.findById(productId)
+                .map(productMapper::toCartDto)
+                .orElseThrow();
     }
 
     private List<ProductDto> findProductsBatch(List<UUID> ids) {
@@ -158,21 +158,21 @@ public class ProductServiceImpl implements ProductService {
             product.setPrice(request.price());
         }
 
-        if (newMainImage != null) {
-            String newMainImageUrl = s3Service.uploadImage(newMainImage);
-            product.setMainImageUrl(newMainImageUrl);
-        }
-
-        if (newAdditionalImages != null && !newAdditionalImages.isEmpty()) {
-            newAdditionalImages.forEach(image -> {
-                String imageUrl = s3Service.uploadImage(image);
-                product.addAdditionalImageUrl(imageUrl);
-            });
-        }
-
-        if (imageURLsToDelete != null) {
-            imageURLsToDelete.forEach(s3Service::deleteImage);
-        }
+//        if (newMainImage != null) {
+//            String newMainImageUrl = s3Service.uploadImage(newMainImage);
+//            product.setMainImageUrl(newMainImageUrl);
+//        }
+//
+//        if (newAdditionalImages != null && !newAdditionalImages.isEmpty()) {
+//            newAdditionalImages.forEach(image -> {
+//                String imageUrl = s3Service.uploadImage(image);
+//                product.addAdditionalImageUrl(imageUrl);
+//            });
+//        }
+//
+//        if (imageURLsToDelete != null) {
+//            imageURLsToDelete.forEach(s3Service::deleteImage);
+//        }
 
         Product savedProduct = productRepository.save(product);
         return productMapper.toSellerDto(savedProduct);
@@ -189,8 +189,8 @@ public class ProductServiceImpl implements ProductService {
 
 //    @Override
 //    @Transactional(readOnly = true)
-//    public boolean productExists(UUID productId) {
-//        return productRepository.existsById(productId);
+//    public boolean productExists(UUID id) {
+//        return productRepository.existsById(id);
 //    }
 
     private Product findById(UUID productId) {

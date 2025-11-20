@@ -22,8 +22,7 @@
             <column name="name" type="string"/>
             <column name="description" type="string"/>
             <column name="price" type="numeric"/>
-            <column name="stock_quantity" type="integer"/>
-            <column name="reserved_quantity" type="integer"/>
+            <column name="main_image_url" type="varchar"/>
         </loadData>
 
         <rollback>

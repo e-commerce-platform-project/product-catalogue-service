@@ -3,7 +3,7 @@ package ru.ivanov.ecommerceplatformproject.productservice.repository.specificati
 import org.springframework.data.jpa.domain.Specification;
 import ru.ivanov.ecommerceplatformproject.productservice.model.Product;
 import ru.ivanov.ecommerceplatformproject.productservice.model.Product_;
-import ru.ivanov.ecommerceplatformproject.productservice.model.enums.ProductCategory;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.enums.ProductCategory;
 
 import java.math.BigDecimal;
 import java.util.Optional;
