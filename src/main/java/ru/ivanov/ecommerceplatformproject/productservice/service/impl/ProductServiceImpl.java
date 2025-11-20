@@ -2,21 +2,19 @@ package ru.ivanov.ecommerceplatformproject.productservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ru.ivanov.ecommerceplatformproject.productservice.aggregate.Product;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.FrontendProductDto;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.ProductDto;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.request.UpdateProductRequest;
 import ru.ivanov.ecommerceplatformproject.productservice.dto.response.PagedResponse;
 import ru.ivanov.ecommerceplatformproject.productservice.exception.ProductNotFoundException;
 import ru.ivanov.ecommerceplatformproject.productservice.mapper.ProductMapper;
-import ru.ivanov.ecommerceplatformproject.productservice.model.Product;
 import ru.ivanov.ecommerceplatformproject.productservice.repository.ProductRepository;
 import ru.ivanov.ecommerceplatformproject.productservice.repository.specification.ProductSpecification;
 import ru.ivanov.ecommerceplatformproject.productservice.service.ProductService;
@@ -26,7 +24,10 @@ import ru.ivanov.ecommerceplatformproject.sharedlibs.enums.ProductCategory;
 import ru.ivanov.ecommerceplatformproject.sharedlibs.event.ProductApprovedEvent;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.ivanov.ecommerceplatformproject.productservice.util.MessageUtils.PRODUCT_NOT_FOUND_WITH_ID;
@@ -108,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
 //                product.getMainImageUrl()
 //        );
         return productRepository.findById(productId)
-                .map(productMapper::toCartDto)
+                .map(productMapper::toCartView)
                 .orElseThrow();
     }
 

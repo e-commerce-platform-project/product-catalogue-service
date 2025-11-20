@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ru.ivanov.ecommerceplatformproject.productservice.util.ProductBrandIdConverter;
-import ru.ivanov.ecommerceplatformproject.productservice.valueObject.ProductBrandId;
+import ru.ivanov.ecommerceplatformproject.productservice.valueObject.BrandId;
 
 @Entity
 @Getter
@@ -16,7 +16,7 @@ public class Brand {
     @Id
     @Convert(converter = ProductBrandIdConverter.class)
     @Column(name = "id", nullable = false, updatable = false, unique = true)
-    private ProductBrandId id;
+    private BrandId id;
 
     @Column(name = "brand", nullable = false, updatable = false, unique = true)
     private String brand;
@@ -25,7 +25,7 @@ public class Brand {
         if (brand == null || brand.isBlank()) {
             throw new IllegalArgumentException();//todo
         }
-        this.id = ProductBrandId.newId();
+        this.id = BrandId.newId();
         this.brand = brand;
     }
 }

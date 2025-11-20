@@ -1,9 +1,8 @@
 package ru.ivanov.ecommerceplatformproject.productservice.query;
 
-public interface Query<R extends Query.Result> {
-    interface Result{}
+public interface Query {
 
-    interface Handler<Q extends Query<R>, R extends Query.Result> {
+    interface Handler<Q extends Query, R> {
         R handle(Q query);
     }
 }

@@ -1,15 +1,14 @@
-package ru.ivanov.ecommerceplatformproject.productservice.model;
+package ru.ivanov.ecommerceplatformproject.productservice.aggregate;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
-import org.axonframework.modelling.command.AggregateIdentifier;
-import org.axonframework.modelling.command.AggregateLifecycle;
-import org.axonframework.modelling.command.AggregateMember;
+import org.axonframework.modelling.command.*;
 import org.axonframework.spring.stereotype.Aggregate;
 import ru.ivanov.ecommerceplatformproject.productservice.command.CreateProductCommand;
+import ru.ivanov.ecommerceplatformproject.productservice.model.Brand;
 import ru.ivanov.ecommerceplatformproject.productservice.model.enums.ProductStatus;
 import ru.ivanov.ecommerceplatformproject.productservice.valueObject.*;
 import ru.ivanov.ecommerceplatformproject.sharedlibs.enums.ProductCategory;
@@ -20,9 +19,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.axonframework.modelling.command.AggregateLifecycle.apply;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Aggregate
+@AggregateRoot(type = "Product")
 public class Product {
 
     @AggregateIdentifier
@@ -51,7 +53,7 @@ public class Product {
 
     @CommandHandler
     public void handle(CreateProductCommand command) {
-        AggregateLifecycle.apply(new ProductCreatedEvent(
+        apply(new ProductCreatedEvent(
                 command.id(),
                 command.sellerId(),
                 command.name(),
@@ -65,13 +67,16 @@ public class Product {
     }
 
     @EventSourcingHandler
+    @CreationPolicy(AggregateCreationPolicy.ALWAYS)
     public void on(ProductCreatedEvent event) {
+        //todo валадация
+
         this.id = new ProductId(event.id());
         this.sellerId = new SellerId(event.sellerId());
         this.name = new ProductName(event.name());
         this.brand = new Brand(event.brand());
         this.description = new ProductDescription(event.description());
-        this.primaryCategory = event.category();
+        this.primaryCategory = event.category();//todo ???
         this.price = new Money(event.price());
         this.status = ProductStatus.NEW;
         this.mainImageUrl = new ImageUrl(event.mainImageUrl());
@@ -80,7 +85,10 @@ public class Product {
                 .toList();
     }
 
-    @CommandHandler
-    public void handle()
+//    @CommandHandler
+//    public void handle(UpdateProductCommand command) {
+//
+//    }
+
 
 }

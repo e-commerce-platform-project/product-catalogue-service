@@ -2,18 +2,18 @@ package ru.ivanov.ecommerceplatformproject.productservice.util;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import ru.ivanov.ecommerceplatformproject.productservice.valueObject.ProductBrandId;
+import ru.ivanov.ecommerceplatformproject.productservice.valueObject.BrandId;
 
 @Converter(autoApply = true)
-public class ProductBrandIdConverter implements AttributeConverter<ProductBrandId, String> {
+public class ProductBrandIdConverter implements AttributeConverter<BrandId, String> {
 
     @Override
-    public String convertToDatabaseColumn(ProductBrandId id) {
+    public String convertToDatabaseColumn(BrandId id) {
         return id.toString();
     }
 
     @Override
-    public ProductBrandId convertToEntityAttribute(String id) {
-        return new ProductBrandId(id);
+    public BrandId convertToEntityAttribute(String id) {
+        return new BrandId(id);
     }
 }

@@ -48,9 +48,6 @@ public class ProductView {
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
-    @Column(name = "available_quantity", nullable = false)
-    private int availableQuantity;
-
     @Column(name = "main_image_url", nullable = false)
     private String mainImageUrl;
 

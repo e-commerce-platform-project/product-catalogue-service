@@ -92,11 +92,21 @@
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.axonframework</groupId>-->
+<!--            <artifactId>axon-spring-boot-starter</artifactId>-->
+<!--            <version>4.12.2</version>-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>org.axonframework</groupId>
-            <artifactId>axon-spring-boot-starter</artifactId>
-            <version>4.12.2</version>
+            <groupId>com.eventstore</groupId>
+            <artifactId>db-client-java</artifactId>
+            <version>5.4.5</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>io.kurrent</groupId>-->
+<!--            <artifactId>kurrentdb-client</artifactId>-->
+<!--            <version>1.1.x</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>

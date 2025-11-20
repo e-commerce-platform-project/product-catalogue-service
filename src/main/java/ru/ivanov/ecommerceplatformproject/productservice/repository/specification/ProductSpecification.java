@@ -1,7 +1,7 @@
 package ru.ivanov.ecommerceplatformproject.productservice.repository.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import ru.ivanov.ecommerceplatformproject.productservice.model.Product;
+import ru.ivanov.ecommerceplatformproject.productservice.aggregate.Product;
 import ru.ivanov.ecommerceplatformproject.productservice.model.Product_;
 import ru.ivanov.ecommerceplatformproject.sharedlibs.enums.ProductCategory;
 

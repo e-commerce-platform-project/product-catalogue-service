@@ -1,8 +1,13 @@
 package ru.ivanov.ecommerceplatformproject.productservice.query;
 
-import ru.ivanov.ecommerceplatformproject.productservice.dto.response.PagedResponse;
-import ru.ivanov.ecommerceplatformproject.productservice.query.model.ProductView;
+import org.springframework.data.domain.Pageable;
+import ru.ivanov.ecommerceplatformproject.sharedlibs.enums.ProductCategory;
 
-public record GetAllProductsQuery() implements Query<PagedResponse<ProductView>> {
-    public record Result(PagedResponse<ProductView> page) implements Query.Result {}
-}
+import java.math.BigDecimal;
+
+public record GetAllProductsQuery(
+        Pageable pageable,
+        ProductCategory category,
+        BigDecimal minPrice,
+        BigDecimal maxPrice
+) implements Query {}
